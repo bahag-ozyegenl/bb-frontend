@@ -3,10 +3,6 @@ import { useAuth } from "./context/AuthContext";
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from "react";
 
-interface CustomError {
-  message: string
-}
-
 export default function Home() {
   const authContext = useAuth()
   const { user, loading, isAuthenticated } = authContext || {}

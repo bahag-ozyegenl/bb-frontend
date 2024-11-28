@@ -47,10 +47,27 @@ export default function Home() {
     setSpending({ ...spending, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     console.log("Spending saved: ", spending);
     setIsModalOpen(false);
-    // Add functionality to save spending details to a database or state here.
+
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`http://localhost:3000/api/spending`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(spending),
+      });
+
+      if (!res.ok) throw new Error('Failed to add spending');
+      
+    } catch (err) {
+      const error = err as CustomError;
+      console.error('Error adding spending:', error.message);
+    }
   };
 
   if (loading) {

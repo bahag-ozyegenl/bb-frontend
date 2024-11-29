@@ -10,6 +10,12 @@ interface Spending {
   category: string;
 }
 
+interface CustomError {
+  message: string;
+}
+
+
+
 const MySpendings = () => {
   const [spendings, setSpendings] = useState<Spending[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,8 +53,9 @@ const MySpendings = () => {
 
       const data = await response.json();
       setSpendings(data.spendings);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const error = err as CustomError;
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -73,8 +80,9 @@ const MySpendings = () => {
       setSpendings((prevSpendings) =>
         prevSpendings.filter((spending) => spending.id !== id)
       );
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const error = err as CustomError;
+      setError(error.message);
     }
   };
 
@@ -104,9 +112,10 @@ const MySpendings = () => {
 
         setSpendings((prevSpendings) => [...prevSpendings, newSpending]); // Update spendings with the new item
       
-    } catch (err: any) {
-        setError(err.message);
-    }
+      } catch (err) {
+        const error = err as CustomError;
+        setError(error.message);
+      }
 
     
   };
@@ -152,8 +161,9 @@ const MySpendings = () => {
       );
 
       setIsModalOpen(false);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const error = err as CustomError;
+      setError(error.message);
     }
   };
 

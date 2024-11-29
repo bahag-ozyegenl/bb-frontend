@@ -1,58 +1,3 @@
-// 'use client'
-// import { useAuth } from "./context/AuthContext";
-// import { useRouter } from 'next/navigation'
-// import { useEffect, useState } from "react";
-
-// interface CustomError {
-//   message: string
-// }
-
-// export default function Home() {
-//   const authContext = useAuth()
-//   const { user, loading, isAuthenticated } = authContext || {}
-
-//   const router = useRouter()
-  
-  
-
-//   useEffect(() => {
-//     // Only check for redirection once loading is complete
-//     console.log("loading ", loading)
-//     console.log("isAuthenticated ", isAuthenticated)
-//     if (!loading && !isAuthenticated) {
-//       router.push('/register')
-//     }
-//     else if (!loading && isAuthenticated) {
-//       //fetchSpendings()
-//     }
-//   }, [loading, isAuthenticated]);
-
-//   if (loading) {
-//     return <p>Loading...</p>;
-//   }
-
-//   if (!user) {
-//     return <p>Redirecting...</p>;
-//   }
-
-
- 
-  
-
-//   return (
-//     <div className="flex flex-col items-center p-4">
-//       {!loading && isAuthenticated && user && (
-//         <>
-//           <h1 className="text-center text-2xl font-bold text-blue-600 mt-4 mb-6">
-//             Hey {user.email}, Welcome to BudgetBuddy!
-//           </h1>
-          
-//         </>
-//       )}
-//     </div>
-//   );
-// }
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -62,12 +7,21 @@ import Stack from '@mui/material/Stack';
 import { useAuth } from './context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-interface Spending {
-  id: number;
-  name: string;
-  amount: number;
-  date: string;
-  category: string;
+interface CustomError {
+  message: string;
+}
+
+// interface Spending {
+//   id: number;
+//   name: string;
+//   amount: number;
+//   date: string;
+//   category: string;
+// }
+interface ChartData {
+  id: string;
+  value: number;
+  label: string;
 }
 
 export default function Home() {
@@ -75,9 +29,9 @@ export default function Home() {
   const { user, loading, isAuthenticated } = authContext || {};
   const router = useRouter();
 
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [filteredSpendings, setFilteredSpendings] = useState<Spending[]>([]);
+  // const [filteredSpendings, setFilteredSpendings] = useState<Spending[]>([]);
   const [loadingChart, setLoadingChart] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -110,38 +64,42 @@ export default function Home() {
           label: item.category,
         }))
       );
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while fetching the summary');
+    } catch (err) {
+      const error = err as CustomError;
+      setError(error.message || 'An error occurred while fetching the summary');
     } finally {
       setLoadingChart(false);
     }
   };
 
-  const fetchSpendingsByCategory = async (category: string) => {
-    const token = localStorage.getItem('token');
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/spending?category=${category}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  // const fetchSpendingsByCategory = async (category: string) => {
+  //   const token = localStorage.getItem('token');
+  //   try {
+  //     const response = await fetch(
+  //       `http://localhost:3000/api/spending?category=${category}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch spendings by category');
-      }
+  //     if (!response.ok) {
+  //       throw new Error('Failed to fetch spendings by category');
+  //     }
 
-      const data = await response.json();
-      setFilteredSpendings(data.spendings || []);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while fetching spendings');
-    }
-  };
+  //     const data = await response.json();
+  //     setFilteredSpendings(data.spendings || []);
+  //   } catch (err) {
+  //     const error = err as CustomError;
+  //     setError(error.message || 'An error occurred while fetching spendings');
+  //   }
+  // };
 
-  const handlePieClick = (event: any, item: any) => {
+  const handlePieClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, item: {dataIndex: number, seriesId: string, type: string}) => {
     // Use dataIndex to get the corresponding chartData entry
+    console.log('item', item);
+    console.log('chartData', chartData);
     const clickedCategory = chartData[item.dataIndex]?.id; 
   
     if (clickedCategory) {
@@ -177,7 +135,7 @@ export default function Home() {
                   data: chartData,
                 },
               ]}
-              onItemClick={handlePieClick}
+              onItemClick={() => handlePieClick}
               width={400}
               height={200}
               margin={{ right: 200 }}
@@ -188,10 +146,10 @@ export default function Home() {
             <h2 className="text-xl font-bold text-gray-700 mb-4">
               Spendings by Category: {selectedCategory || 'None'}
             </h2>
-            {selectedCategory && filteredSpendings.length === 0 && (
+            {selectedCategory && ( //filteredSpendings.length === 0 && 
               <p>No spendings in this category.</p>
             )}
-            {selectedCategory && filteredSpendings.length > 0 && (
+            {selectedCategory &&  ( //filteredSpendings.length > 0 &&
               <table className="table-auto w-full border-collapse border border-gray-300">
                 <thead>
                   <tr>
@@ -200,7 +158,7 @@ export default function Home() {
                     <th className="border border-gray-300 px-4 py-2">Date</th>
                   </tr>
                 </thead>
-                <tbody>
+                {/* <tbody>
                   {filteredSpendings.map((spending) => (
                     <tr key={spending.id}>
                       <td className="border border-gray-300 px-4 py-2">
@@ -214,7 +172,7 @@ export default function Home() {
                       </td>
                     </tr>
                   ))}
-                </tbody>
+                </tbody> */}
               </table>
             )}
           </div>

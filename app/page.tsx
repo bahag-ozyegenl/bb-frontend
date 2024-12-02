@@ -1,23 +1,26 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { PieChart } from '@mui/x-charts/PieChart';
+import { PieChart} from '@mui/x-charts/PieChart';
+import { PieItemIdentifier } from '@mui/x-charts/models';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { useAuth } from './context/AuthContext';
 import { useRouter } from 'next/navigation';
 
+
 interface CustomError {
   message: string;
 }
 
-// interface Spending {
-//   id: number;
-//   name: string;
-//   amount: number;
-//   date: string;
-//   category: string;
-// }
+interface Spending {
+  id: number;
+  name: string;
+  amount: number;
+  date: string;
+  category: string;
+}
+
 interface ChartData {
   id: string;
   value: number;
@@ -31,7 +34,7 @@ export default function Home() {
 
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  // const [filteredSpendings, setFilteredSpendings] = useState<Spending[]>([]);
+  const [filteredSpendings, setFilteredSpendings] = useState<Spending[]>([]);
   const [loadingChart, setLoadingChart] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,8 +43,9 @@ export default function Home() {
       router.push('/register');
     } else if (!loading && isAuthenticated) {
       fetchSpendingSummary();
+      fetchSpendingsByCategory(selectedCategory || '');
     }
-  }, [loading, isAuthenticated]);
+  }, [loading, isAuthenticated, selectedCategory]);
 
   const fetchSpendingSummary = async () => {
     const token = localStorage.getItem('token');
@@ -72,35 +76,36 @@ export default function Home() {
     }
   };
 
-  // const fetchSpendingsByCategory = async (category: string) => {
-  //   const token = localStorage.getItem('token');
-  //   try {
-  //     const response = await fetch(
-  //       `http://localhost:3000/api/spending?category=${category}`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
+  const fetchSpendingsByCategory = async (category: string) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/spending-by-category?category=${category}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-  //     if (!response.ok) {
-  //       throw new Error('Failed to fetch spendings by category');
-  //     }
+      if (!response.ok) {
+        throw new Error('Failed to fetch spendings by category');
+      }
 
-  //     const data = await response.json();
-  //     setFilteredSpendings(data.spendings || []);
-  //   } catch (err) {
-  //     const error = err as CustomError;
-  //     setError(error.message || 'An error occurred while fetching spendings');
-  //   }
-  // };
+      const data = await response.json();
+      setFilteredSpendings(data.spendings || []);
+    } catch (err) {
+      const error = err as CustomError;
+      setError(error.message || 'An error occurred while fetching spendings');
+    }
+  };
 
-  const handlePieClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, item: {dataIndex: number, seriesId: string, type: string}) => {
+  const handlePieClick = (event: React.MouseEvent<SVGPathElement, MouseEvent>, itemIdentifier: PieItemIdentifier) => {
     // Use dataIndex to get the corresponding chartData entry
-    console.log('item', item);
+    console.log('item', itemIdentifier);
     console.log('chartData', chartData);
-    const clickedCategory = chartData[item.dataIndex]?.id; 
+    const clickedCategory = chartData[itemIdentifier.dataIndex]?.id; 
+    console.log('clickedCategory', clickedCategory);
   
     if (clickedCategory) {
       setSelectedCategory(clickedCategory); // Set the clicked category
@@ -135,7 +140,7 @@ export default function Home() {
                   data: chartData,
                 },
               ]}
-              onItemClick={() => handlePieClick}
+              onItemClick={ handlePieClick}
               width={400}
               height={200}
               margin={{ right: 200 }}
@@ -146,33 +151,29 @@ export default function Home() {
             <h2 className="text-xl font-bold text-gray-700 mb-4">
               Spendings by Category: {selectedCategory || 'None'}
             </h2>
-            {selectedCategory && ( //filteredSpendings.length === 0 && 
+            {selectedCategory && filteredSpendings.length === 0 && ( 
               <p>No spendings in this category.</p>
             )}
-            {selectedCategory &&  ( //filteredSpendings.length > 0 &&
+            {selectedCategory &&  filteredSpendings.length > 0 &&( 
               <table className="table-auto w-full border-collapse border border-gray-300">
                 <thead>
                   <tr>
                     <th className="border border-gray-300 px-4 py-2">Name</th>
                     <th className="border border-gray-300 px-4 py-2">Amount</th>
-                    <th className="border border-gray-300 px-4 py-2">Date</th>
                   </tr>
                 </thead>
-                {/* <tbody>
-                  {filteredSpendings.map((spending) => (
-                    <tr key={spending.id}>
+                <tbody>
+                  {filteredSpendings.map((spending, index) => (
+                    <tr key={spending.id || index}>
                       <td className="border border-gray-300 px-4 py-2">
                         {spending.name}
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
                         {spending.amount}
                       </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {new Date(spending.date).toLocaleDateString()}
-                      </td>
                     </tr>
                   ))}
-                </tbody> */}
+                </tbody>
               </table>
             )}
           </div>

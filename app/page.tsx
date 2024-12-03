@@ -1,81 +1,22 @@
-// 'use client'
-// import { useAuth } from "./context/AuthContext";
-// import { useRouter } from 'next/navigation'
-// import { useEffect, useState } from "react";
-
-// interface CustomError {
-//   message: string
-// }
-
-// export default function Home() {
-//   const authContext = useAuth()
-//   const { user, loading, isAuthenticated } = authContext || {}
-
-//   const router = useRouter()
-  
-  
-
-//   useEffect(() => {
-//     // Only check for redirection once loading is complete
-//     console.log("loading ", loading)
-//     console.log("isAuthenticated ", isAuthenticated)
-//     if (!loading && !isAuthenticated) {
-//       router.push('/register')
-//     }
-//     else if (!loading && isAuthenticated) {
-//       //fetchSpendings()
-//     }
-//   }, [loading, isAuthenticated]);
-
-//   if (loading) {
-//     return <p>Loading...</p>;
-//   }
-
-//   if (!user) {
-//     return <p>Redirecting...</p>;
-//   }
-
-
- 
-  
-
-//   return (
-//     <div className="flex flex-col items-center p-4">
-//       {!loading && isAuthenticated && user && (
-//         <>
-//           <h1 className="text-center text-2xl font-bold text-blue-600 mt-4 mb-6">
-//             Hey {user.email}, Welcome to BudgetBuddy!
-//           </h1>
-          
-//         </>
-//       )}
-//     </div>
-//   );
-// }
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { PieChart } from '@mui/x-charts/PieChart';
+import { PieChart, pieArcLabelClasses} from '@mui/x-charts/PieChart';
+import { PieItemIdentifier} from '@mui/x-charts/models';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { useAuth } from './context/AuthContext';
 import { useRouter } from 'next/navigation';
-
-interface Spending {
-  id: number;
-  name: string;
-  amount: number;
-  date: string;
-  category: string;
-}
+import {Spending} from "./types/Spending";
+import { CustomError } from './types/CustomError';
+import { ChartData } from './types/ChartData';
 
 export default function Home() {
   const authContext = useAuth();
   const { user, loading, isAuthenticated } = authContext || {};
   const router = useRouter();
 
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [filteredSpendings, setFilteredSpendings] = useState<Spending[]>([]);
   const [loadingChart, setLoadingChart] = useState(true);
@@ -86,13 +27,14 @@ export default function Home() {
       router.push('/register');
     } else if (!loading && isAuthenticated) {
       fetchSpendingSummary();
+      fetchSpendingsByCategory(selectedCategory || '');
     }
-  }, [loading, isAuthenticated]);
+  }, [loading, isAuthenticated, selectedCategory]);
 
   const fetchSpendingSummary = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://localhost:3000/api/spending-sum', {
+      const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-sum', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -110,8 +52,9 @@ export default function Home() {
           label: item.category,
         }))
       );
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while fetching the summary');
+    } catch (err) {
+      const error = err as CustomError;
+      setError(error.message || 'An error occurred while fetching the summary');
     } finally {
       setLoadingChart(false);
     }
@@ -121,7 +64,7 @@ export default function Home() {
     const token = localStorage.getItem('token');
     try {
       const response = await fetch(
-        `http://localhost:3000/api/spending?category=${category}`,
+        `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-by-category?category=${category}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -134,15 +77,20 @@ export default function Home() {
       }
 
       const data = await response.json();
+      console.log('data sp', data.spendings);
       setFilteredSpendings(data.spendings || []);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while fetching spendings');
+    } catch (err) {
+      const error = err as CustomError;
+      setError(error.message || 'An error occurred while fetching spendings');
     }
   };
 
-  const handlePieClick = (event: any, item: any) => {
+  const handlePieClick = (event: React.MouseEvent<SVGPathElement, MouseEvent>, itemIdentifier: PieItemIdentifier) => {
     // Use dataIndex to get the corresponding chartData entry
-    const clickedCategory = chartData[item.dataIndex]?.id; 
+    console.log('item', itemIdentifier);
+    console.log('chartData', chartData);
+    const clickedCategory = chartData[itemIdentifier.dataIndex]?.id; 
+    console.log('clickedCategory', clickedCategory);
   
     if (clickedCategory) {
       setSelectedCategory(clickedCategory); // Set the clicked category
@@ -159,7 +107,7 @@ export default function Home() {
       {!loading && isAuthenticated && user && (
         <>
           <h1 className="text-center text-2xl font-bold text-blue-600 mt-4 mb-6">
-            Hey {user.email}, Welcome to BudgetBuddy!
+            Hey {user.username}, Welcome to BudgetBuddy!
           </h1>
 
           <Stack
@@ -168,56 +116,76 @@ export default function Home() {
             justifyContent="space-between"
           >
             <Typography variant="h6">
-              Click a slice to see spendings by category
-            </Typography>
+                <div className="mt-8">
+                <h2 className="text-xl font-bold text-gray-700 mb-4">
+                  Spendings by Category: {selectedCategory || 'None'}
+                </h2>
+                {selectedCategory && filteredSpendings.length === 0 && ( 
+                  <p>No spendings in this category.</p>
+                )}
+                {selectedCategory &&  filteredSpendings.length > 0 &&( 
+                  <div className="shadow-lg rounded-lg overflow-x-auto">
+                  <div className="w-full max-w-md mx-auto shadow-md rounded-lg overflow-hidden">
+                  <table className="table-auto w-full border-collapse border border-gray-200">
+                    <thead>
+                      <tr className="bg-blue-100 text-left font-semibold text-sm text-blue-900">
+                        <th className="border border-gray-200 px-4 py-2">Name</th>
+                        <th className="border border-gray-200 px-4 py-2">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredSpendings.map((spending, index) => (
+                        <tr
+                          key={spending.id || index}
+                          className={
+                            index % 2 === 0
+                              ? "bg-white"
+                              : "bg-blue-50 hover:bg-blue-100"
+                          }
+                        >
+                          <td className="border border-gray-200 px-4 py-2 text-sm">
+                            {spending.name}
+                          </td>
+                          <td className="border border-gray-200 px-4 py-2 text-sm text-right">
+                          € {spending.sum}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  </div>
 
+                </div>
+                
+                )}
+              </div>
+            </Typography>
+            
+            
             <PieChart
               series={[
                 {
                   data: chartData,
+                  arcLabel: (item) => `${((item.value / chartData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(1)}%`, // Display percentage values
+                  arcLabelMinAngle: 3, // Only display labels for slices with a minimum angle
+                  arcLabelRadius: '65%', // Position labels closer to the center of each slice
                 },
               ]}
-              onItemClick={handlePieClick}
-              width={400}
-              height={200}
-              margin={{ right: 200 }}
+              onItemClick={ handlePieClick}
+            
+              height={500}
+              margin={{ left: 200}}
+              sx={{
+                [`& .${pieArcLabelClasses.root}`]: {
+                  fontWeight: 'bold', // Make labels bold
+                  fill: '#ffffff', // White text
+                  textShadow: '0px 0px 3px rgba(0, 0, 0, 0.5)', // Add shadow for contrast
+                },
+              }}
             />
           </Stack>
 
-          <div className="mt-8">
-            <h2 className="text-xl font-bold text-gray-700 mb-4">
-              Spendings by Category: {selectedCategory || 'None'}
-            </h2>
-            {selectedCategory && filteredSpendings.length === 0 && (
-              <p>No spendings in this category.</p>
-            )}
-            {selectedCategory && filteredSpendings.length > 0 && (
-              <table className="table-auto w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr>
-                    <th className="border border-gray-300 px-4 py-2">Name</th>
-                    <th className="border border-gray-300 px-4 py-2">Amount</th>
-                    <th className="border border-gray-300 px-4 py-2">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSpendings.map((spending) => (
-                    <tr key={spending.id}>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {spending.name}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {spending.amount}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {new Date(spending.date).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+          
         </>
       )}
     </div>

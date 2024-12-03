@@ -38,7 +38,7 @@ const MySpendings = () => {
   const fetchSpendings = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/spending', {
+      const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spendings', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -63,7 +63,7 @@ const MySpendings = () => {
     const token = localStorage.getItem('token');
     try {
       const response = await fetch(
-        `http://localhost:3000/api/spending-date?startDate=${startDate}&endDate=${endDate}`,
+        `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-date?startDate=${startDate}&endDate=${endDate}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -83,12 +83,61 @@ const MySpendings = () => {
     }
   }
 
+  // function downloadCSV = async () => {
+  //   const token = localStorage.getItem('token');
+  //   try {
+  //     const response = await fetch(
+  //       `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-date?startDate=${startDate}&endDate=${endDate}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (!response.ok) {
+  //       throw new Error('Failed to fetch spendings');
+  //     }
+
+  //     const data = await response.json();
+  //     setSpendings(data.spendings);
+  //   } catch (err) {
+  //     const error = err as CustomError;
+  //     setError(error.message);
+  //   }
+
+  //   const csvRows = [];
+
+  //   // Headers
+  //   const headers = Object.keys(spendings[0]);
+  //   csvRows.push(headers.join(',')); // Join with commas for CSV
+
+  //   // Data Rows
+  //   for (const row of spendings) {
+  //     const values = headers.map(header => `"${row[header]}"`); // Wrap values in quotes
+  //     csvRows.push(values.join(',')); // Join with commas
+  //   }
+
+  //   // Create CSV Blob
+  //   const csvContent = csvRows.join('\n');
+  //   const blob = new Blob([csvContent], { type: 'text/csv' });
+  //   const url = URL.createObjectURL(blob);
+
+  //   // Create a link to trigger download
+  //   const a = document.createElement('a');
+  //   a.setAttribute('href', url);
+  //   a.setAttribute('download', 'spendings.csv');
+  //   document.body.appendChild(a);
+  //   a.click();
+  //   document.body.removeChild(a);
+  // }
+
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem('token');
     if (!confirm('Are you sure you want to delete this spending?')) return;
 
     try {
-      const response = await fetch(`http://localhost:3000/api/spending/${id}`, {
+      const response = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -119,7 +168,7 @@ const MySpendings = () => {
 
     const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`http://localhost:3000/api/spending`, {
+        const res = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending`, {
             method: 'POST',
             headers: {
             'Authorization': `Bearer ${token}`,
@@ -169,7 +218,7 @@ const MySpendings = () => {
 
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:3000/api/spending/${editingId}`, {
+      const res = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending/${editingId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,

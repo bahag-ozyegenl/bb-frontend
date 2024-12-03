@@ -34,7 +34,7 @@ export default function Home() {
   const fetchSpendingSummary = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://localhost:3000/api/spending-sum', {
+      const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-sum', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -64,7 +64,7 @@ export default function Home() {
     const token = localStorage.getItem('token');
     try {
       const response = await fetch(
-        `http://localhost:3000/api/spending-by-category?category=${category}`,
+        `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-by-category?category=${category}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -107,7 +107,7 @@ export default function Home() {
       {!loading && isAuthenticated && user && (
         <>
           <h1 className="text-center text-2xl font-bold text-blue-600 mt-4 mb-6">
-            Hey {user.email}, Welcome to BudgetBuddy!
+            Hey {user.username}, Welcome to BudgetBuddy!
           </h1>
 
           <Stack
@@ -167,14 +167,14 @@ export default function Home() {
                 {
                   data: chartData,
                   arcLabel: (item) => `${((item.value / chartData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(1)}%`, // Display percentage values
-                  arcLabelMinAngle: 35, // Only display labels for slices with a minimum angle
-                  arcLabelRadius: '60%', // Position labels closer to the center of each slice
+                  arcLabelMinAngle: 3, // Only display labels for slices with a minimum angle
+                  arcLabelRadius: '65%', // Position labels closer to the center of each slice
                 },
               ]}
               onItemClick={ handlePieClick}
-              width={400}
-              height={200}
-              margin={{ right: 200 }}
+            
+              height={500}
+              margin={{ left: 200}}
               sx={{
                 [`& .${pieArcLabelClasses.root}`]: {
                   fontWeight: 'bold', // Make labels bold

@@ -1,31 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { PieChart} from '@mui/x-charts/PieChart';
-import { PieItemIdentifier } from '@mui/x-charts/models';
+import { PieChart, pieArcLabelClasses} from '@mui/x-charts/PieChart';
+import { PieItemIdentifier} from '@mui/x-charts/models';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { useAuth } from './context/AuthContext';
 import { useRouter } from 'next/navigation';
-
-
-interface CustomError {
-  message: string;
-}
-
-interface Spending {
-  id: number;
-  name: string;
-  amount: number;
-  date: string;
-  category: string;
-}
-
-interface ChartData {
-  id: string;
-  value: number;
-  label: string;
-}
+import {Spending} from "./types/Spending";
+import { CustomError } from './types/CustomError';
+import { ChartData } from './types/ChartData';
 
 export default function Home() {
   const authContext = useAuth();
@@ -93,6 +77,7 @@ export default function Home() {
       }
 
       const data = await response.json();
+      console.log('data sp', data.spendings);
       setFilteredSpendings(data.spendings || []);
     } catch (err) {
       const error = err as CustomError;
@@ -131,52 +116,76 @@ export default function Home() {
             justifyContent="space-between"
           >
             <Typography variant="h6">
-              Click a slice to see spendings by category
-            </Typography>
+                <div className="mt-8">
+                <h2 className="text-xl font-bold text-gray-700 mb-4">
+                  Spendings by Category: {selectedCategory || 'None'}
+                </h2>
+                {selectedCategory && filteredSpendings.length === 0 && ( 
+                  <p>No spendings in this category.</p>
+                )}
+                {selectedCategory &&  filteredSpendings.length > 0 &&( 
+                  <div className="shadow-lg rounded-lg overflow-x-auto">
+                  <div className="w-full max-w-md mx-auto shadow-md rounded-lg overflow-hidden">
+                  <table className="table-auto w-full border-collapse border border-gray-200">
+                    <thead>
+                      <tr className="bg-blue-100 text-left font-semibold text-sm text-blue-900">
+                        <th className="border border-gray-200 px-4 py-2">Name</th>
+                        <th className="border border-gray-200 px-4 py-2">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredSpendings.map((spending, index) => (
+                        <tr
+                          key={spending.id || index}
+                          className={
+                            index % 2 === 0
+                              ? "bg-white"
+                              : "bg-blue-50 hover:bg-blue-100"
+                          }
+                        >
+                          <td className="border border-gray-200 px-4 py-2 text-sm">
+                            {spending.name}
+                          </td>
+                          <td className="border border-gray-200 px-4 py-2 text-sm text-right">
+                          € {spending.sum}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  </div>
 
+                </div>
+                
+                )}
+              </div>
+            </Typography>
+            
+            
             <PieChart
               series={[
                 {
                   data: chartData,
+                  arcLabel: (item) => `${((item.value / chartData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(1)}%`, // Display percentage values
+                  arcLabelMinAngle: 35, // Only display labels for slices with a minimum angle
+                  arcLabelRadius: '60%', // Position labels closer to the center of each slice
                 },
               ]}
               onItemClick={ handlePieClick}
               width={400}
               height={200}
               margin={{ right: 200 }}
+              sx={{
+                [`& .${pieArcLabelClasses.root}`]: {
+                  fontWeight: 'bold', // Make labels bold
+                  fill: '#ffffff', // White text
+                  textShadow: '0px 0px 3px rgba(0, 0, 0, 0.5)', // Add shadow for contrast
+                },
+              }}
             />
           </Stack>
 
-          <div className="mt-8">
-            <h2 className="text-xl font-bold text-gray-700 mb-4">
-              Spendings by Category: {selectedCategory || 'None'}
-            </h2>
-            {selectedCategory && filteredSpendings.length === 0 && ( 
-              <p>No spendings in this category.</p>
-            )}
-            {selectedCategory &&  filteredSpendings.length > 0 &&( 
-              <table className="table-auto w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr>
-                    <th className="border border-gray-300 px-4 py-2">Name</th>
-                    <th className="border border-gray-300 px-4 py-2">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSpendings.map((spending, index) => (
-                    <tr key={spending.id || index}>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {spending.name}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {spending.amount}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+          
         </>
       )}
     </div>

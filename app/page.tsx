@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation';
 import {Spending} from "./types/Spending";
 import { CustomError } from './types/CustomError';
 import { ChartData } from './types/ChartData';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function Home() {
   const authContext = useAuth();
@@ -22,6 +24,9 @@ export default function Home() {
   const [loadingChart, setLoadingChart] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [dateRange, setDateRange] = useState<[Date, Date] | null>(null);
+  const [startDate, endDate] = dateRange || [undefined, undefined];
+
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push('/register');
@@ -29,42 +34,89 @@ export default function Home() {
       fetchSpendingSummary();
       fetchSpendingsByCategory(selectedCategory || '');
     }
-  }, [loading, isAuthenticated, selectedCategory]);
+  }, [loading, isAuthenticated, selectedCategory, dateRange]);
 
-  const fetchSpendingSummary = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-sum', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  // data of pie chart
+  // const fetchSpendingSummary = async () => {
+  //   const token = localStorage.getItem('token');
+  //   try {
+  //     const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-sum', {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch spending summary');
-      }
+  //     if (!response.ok) {
+  //       throw new Error('Failed to fetch spending summary');
+  //     }
 
-      const data = await response.json();
-      setChartData(
-        data.spendings.map((item: { category: string; sum: string }) => ({
-          id: item.category,
-          value: Number(item.sum),
-          label: item.category,
-        }))
-      );
-    } catch (err) {
-      const error = err as CustomError;
-      setError(error.message || 'An error occurred while fetching the summary');
-    } finally {
-      setLoadingChart(false);
+  //     const data = await response.json();
+  //     setChartData(
+  //       data.spendings.map((item: { category: string; sum: string }) => ({
+  //         id: item.category,
+  //         value: Number(item.sum),
+  //         label: item.category,
+  //       }))
+  //     );
+  //   } catch (err) {
+  //     const error = err as CustomError;
+  //     setError(error.message || 'An error occurred while fetching the summary');
+  //   } finally {
+  //     setLoadingChart(false);
+  //   }
+  // };
+
+  // data of pie chart
+const fetchSpendingSummary = async () => {
+  const token = localStorage.getItem('token');
+
+  // Dynamically construct the URL based on the presence of startDate and endDate
+  let url = 'https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-sum';
+
+  if (startDate && endDate) {
+    url += `?startDate=${startDate}&endDate=${endDate}`;
+  }
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch spending summary');
     }
-  };
 
+    const data = await response.json();
+    setChartData(
+      data.spendings.map((item: { category: string; sum: string }) => ({
+        id: item.category,
+        value: Number(item.sum),
+        label: item.category,
+      }))
+    );
+  } catch (err) {
+    const error = err as CustomError;
+    setError(error.message || 'An error occurred while fetching the summary');
+  } finally {
+    setLoadingChart(false);
+  }
+};
+
+
+  // data of pie chart slice
   const fetchSpendingsByCategory = async (category: string) => {
     const token = localStorage.getItem('token');
+
+    let url = `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-by-category?category=${category}`;
+
+  if (startDate && endDate) {
+    url += `&startDate=${startDate}&endDate=${endDate}`;
+  }
     try {
       const response = await fetch(
-        `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-by-category?category=${category}`,
+        url,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -77,7 +129,6 @@ export default function Home() {
       }
 
       const data = await response.json();
-      console.log('data sp', data.spendings);
       setFilteredSpendings(data.spendings || []);
     } catch (err) {
       const error = err as CustomError;
@@ -98,6 +149,10 @@ export default function Home() {
       alert('Category not found');
     }
   };
+
+  const handleDateChange = (dates: [Date, Date]) => {
+    setDateRange(dates);
+  };
   
   if (loading || loadingChart) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
@@ -110,6 +165,20 @@ export default function Home() {
             Hey {user.username}, Welcome to BudgetBuddy!
           </h1>
 
+          <div className="flex items-center">
+            <DatePicker
+              selected={startDate}
+              onChange={(update) => handleDateChange(update as [Date, Date])} // Cast to [Date, Date]
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              selectsRange
+              maxDate={new Date()}
+              className="border border-gray-300 rounded px-4 py-2 w-56"
+              placeholderText="Select date range"
+            />
+          </div>
+
           <Stack
             direction={{ xs: 'column', md: 'row' }}
             alignItems={{ xs: 'flex-start', md: 'center' }}
@@ -118,7 +187,7 @@ export default function Home() {
             <Typography variant="h6">
                 <div className="mt-8">
                 <h2 className="text-xl font-bold text-gray-700 mb-4">
-                  Spendings by Category: {selectedCategory || 'None'}
+                  { selectedCategory ? <p>Your {selectedCategory} spendings </p> : <p>Click a slice to see spendings by category</p>}
                 </h2>
                 {selectedCategory && filteredSpendings.length === 0 && ( 
                   <p>No spendings in this category.</p>

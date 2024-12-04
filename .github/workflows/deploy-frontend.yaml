@@ -42,6 +42,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           docker build \
+            --build-arg NEXT_PUBLIC_API_KEY=${{ secrets.NEXT_PUBLIC_API_KEY }} \
             -t gcr.io/${{ secrets.PROJECT_ID }}/budget-buddy-frontend:latest .
           docker push gcr.io/${{ secrets.PROJECT_ID }}/budget-buddy-frontend:latest
 

@@ -36,7 +36,7 @@ const FinancialAdvice = () => {
         const data = await response.json();
 
         // Map through the data.items and extract relevant fields
-        const formattedVideos = data.items.map((item: any) => ({
+        const formattedVideos = data.items.map((item: any): Video => ({
           title: decodeHTML(item.snippet.title), // Decode HTML entities here
           videoId: item.id.videoId,
           channelTitle: item.snippet.channelTitle,

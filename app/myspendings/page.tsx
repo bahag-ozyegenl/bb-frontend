@@ -25,6 +25,10 @@ const MySpendings = () => {
   const [dateRange, setDateRange] = useState<[Date, Date] | null>(null);
   const [startDate, endDate] = dateRange || [undefined, undefined];
 
+  const [splitModalOpen, setSplitModalOpen] = useState(false);
+  const [splitSpendingId, setSplitSpendingId] = useState<number | null>(null);
+  const [splitEmail, setSplitEmail] = useState(""); // State for the email input
+  
 
     useEffect(() => {
       if (startDate && endDate) {
@@ -38,7 +42,8 @@ const MySpendings = () => {
   const fetchSpendings = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spendings', {
+
+      const response = await fetch('http://localhost:3000/api/spendings', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -51,6 +56,7 @@ const MySpendings = () => {
 
       const data = await response.json();
       setSpendings(data.spendings);
+      console.log("data.spendings: ", data.spendings)
     } catch (err) {
       const error = err as CustomError;
       setError(error.message);
@@ -63,7 +69,7 @@ const MySpendings = () => {
     const token = localStorage.getItem('token');
     try {
       const response = await fetch(
-        `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-date?startDate=${startDate}&endDate=${endDate}`,
+        `http://localhost:3000/api/spending-date?startDate=${startDate}&endDate=${endDate}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -83,61 +89,14 @@ const MySpendings = () => {
     }
   }
 
-  // function downloadCSV = async () => {
-  //   const token = localStorage.getItem('token');
-  //   try {
-  //     const response = await fetch(
-  //       `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-date?startDate=${startDate}&endDate=${endDate}`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     if (!response.ok) {
-  //       throw new Error('Failed to fetch spendings');
-  //     }
-
-  //     const data = await response.json();
-  //     setSpendings(data.spendings);
-  //   } catch (err) {
-  //     const error = err as CustomError;
-  //     setError(error.message);
-  //   }
-
-  //   const csvRows = [];
-
-  //   // Headers
-  //   const headers = Object.keys(spendings[0]);
-  //   csvRows.push(headers.join(',')); // Join with commas for CSV
-
-  //   // Data Rows
-  //   for (const row of spendings) {
-  //     const values = headers.map(header => `"${row[header]}"`); // Wrap values in quotes
-  //     csvRows.push(values.join(',')); // Join with commas
-  //   }
-
-  //   // Create CSV Blob
-  //   const csvContent = csvRows.join('\n');
-  //   const blob = new Blob([csvContent], { type: 'text/csv' });
-  //   const url = URL.createObjectURL(blob);
-
-  //   // Create a link to trigger download
-  //   const a = document.createElement('a');
-  //   a.setAttribute('href', url);
-  //   a.setAttribute('download', 'spendings.csv');
-  //   document.body.appendChild(a);
-  //   a.click();
-  //   document.body.removeChild(a);
-  // }
+ 
 
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem('token');
     if (!confirm('Are you sure you want to delete this spending?')) return;
 
     try {
-      const response = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending/${id}`, {
+      const response = await fetch(`http://localhost:3000/api/spending/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -168,7 +127,7 @@ const MySpendings = () => {
 
     const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending`, {
+        const res = await fetch(`http://localhost:3000/api/spending`, {
             method: 'POST',
             headers: {
             'Authorization': `Bearer ${token}`,
@@ -213,12 +172,13 @@ const MySpendings = () => {
     console.log("editedSpending: ", editedSpending)
   };
 
+  // edit spending
   const handleSave = async () => {
     if (!editedSpending || editingId === null) return;
 
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending/${editingId}`, {
+      const res = await fetch(`http://localhost:3000/api/spending/${editingId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -244,12 +204,125 @@ const MySpendings = () => {
     }
   };
 
+  // Split Spending
+  const handleSplitSave = async () => {
+    if (splitSpendingId === null || !splitEmail) return;
+  
+    const token = localStorage.getItem("token");
+    const spendingToSplit = spendings.find(
+      (spending) => spending.id === splitSpendingId
+    );
+  
+    if (!spendingToSplit) {
+      setError("Spending not found.");
+      return;
+    }
+
+    if (!splitEmail || !/\S+@\S+\.\S+/.test(splitEmail)) {
+      setError("Please provide a valid email address.");
+      return;
+    }
+  
+    try {
+      // Step 1: Fetch user_id for the given email
+      const userRes = await fetch(`http://localhost:3000/api/users/getIdByEmail`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: splitEmail }),
+      });
+    
+      if (!userRes.ok) {
+        if (userRes.status === 404) {
+          throw new Error("User not found for the provided email.");
+        } else if (userRes.status === 400) {
+          throw new Error("Invalid email address.");
+        } else {
+          throw new Error("Failed to fetch user ID for email.");
+        }
+      }
+    
+      const { user_id } = await userRes.json(); // Assuming backend returns { user_id }
+    
+      if (!user_id) {
+        setError("User not found for the provided email.");
+        return;
+      }
+      console.log("Fetched user_id:", user_id);
+  
+      // Step 2: Calculate the new amount (split in half)
+      const updatedAmount = spendingToSplit.amount / 2;
+  
+      // Step 3: Update the spending with split_user_id and updated amount
+      const res = await fetch(
+        `http://localhost:3000/api/spending/${splitSpendingId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: updatedAmount, // Updated amount
+            split_user_id: user_id, // User ID of the person to share with
+          }),
+        }
+      );
+  
+      if (!res.ok) throw new Error("Failed to update spending");
+  
+      // Step 4: Update the state with the saved spending
+      setSpendings((prevSpendings) =>
+        prevSpendings.map((spending) =>
+          spending.id === splitSpendingId
+            ? { ...spending, amount: updatedAmount, split_user_id: user_id } // Update amount and split_user_id
+            : spending
+        )
+      );
+      
+      const addSplitRes = await fetch(`http://localhost:3000/api/spending-split`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: spendingToSplit.name,
+          amount: spendingToSplit.amount / 2, // Split the amount in half
+          date: spendingToSplit.date,
+          category: spendingToSplit.category,
+          user_id: user_id, //we will create the spending for this user_id
+        }),
+      });
+  
+
+      if (!addSplitRes.ok) throw new Error(`Failed to add spending to user ${splitEmail}`);
+
+      setSplitModalOpen(false);
+    } catch (err) {
+      const error = err as CustomError;
+      setError(error.message);
+    }
+  };
+  
   
 
   const handleDateChange = (dates: [Date, Date]) => {
-   
     setDateRange(dates);
+  };
 
+  const openSplitModal = (spendingId: number) => {
+    setSplitSpendingId(spendingId);
+    setSplitModalOpen(true);
+    setSplitEmail(""); // Reset the email field each time modal opens
+  };
+
+  const closeSplitModal = () => {
+    setSplitModalOpen(false);
+    setSplitSpendingId(null);
+    setSplitEmail("");
   };
   
   if (loading) return <p>Loading...</p>;
@@ -372,7 +445,11 @@ const MySpendings = () => {
             {spendings.map((spending) => (
               <tr key={spending.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 text-gray-800">{spending.name}</td>
-                <td className="px-4 py-3 text-gray-800">€ {spending.amount}</td>
+                <td className="px-4 py-3 text-gray-800">€ {spending.amount} 
+                {spending.split_user_id && (
+                    <div className="text-sm text-gray-500">shared spending</div>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-gray-800">
                   {new Date(spending.date).toLocaleDateString()}
                 </td>
@@ -393,6 +470,27 @@ const MySpendings = () => {
                     {spending.category}
                   </span>
                     <div className="flex space-x-3"> 
+                      {/* Split Button */}
+                      <button
+                        onClick={() => openSplitModal(spending.id)}
+                        className="text-green-500 hover:text-green-700"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4 6h16M4 12h16M4 18h16"
+                          />
+                        </svg>
+                      </button>
+
                     <button
                       onClick={() => openEditModal(spending.id)}
                       className="text-blue-500 hover:text-blue-700"
@@ -514,6 +612,37 @@ const MySpendings = () => {
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
                 Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+       {/* Split Modal */}
+       {splitModalOpen && splitSpendingId && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-lg font-bold mb-4">Split Your Spending</h2>
+            <p className="mb-4">Enter the email address of the person to split with:</p>
+            <input
+              type="email"
+              value={splitEmail}
+              onChange={(e) => setSplitEmail(e.target.value)} // Update state on input
+              placeholder="Enter email address"
+              className="border border-gray-300 p-2 w-full mb-4 rounded"
+            />
+            <div className="flex justify-end">
+              <button
+                onClick={() => closeSplitModal()}
+                className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSplitSave}
+                className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded"
+              >
+                Split
               </button>
             </div>
           </div>

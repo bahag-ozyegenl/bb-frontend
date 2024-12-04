@@ -5,6 +5,7 @@ interface Spending {
     date: string;
     category: string;
     sum?: number;
+    split_user_id?: number;
   }
 
 export type { Spending }

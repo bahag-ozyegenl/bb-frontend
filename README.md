@@ -14,7 +14,7 @@ pnpm dev
 bun dev
 ```
 
-Open [https://budget-buddy-backend-630243095989.europe-west1.run.app](https://budget-buddy-backend-630243095989.europe-west1.run.app) with your browser to see the result.
+Open [https://budget-buddy-frontend-630243095989.europe-west1.run.app](https://budget-buddy-frontend-630243095989.europe-west1.run.app) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

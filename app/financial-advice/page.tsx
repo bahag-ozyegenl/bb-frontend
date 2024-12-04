@@ -9,6 +9,19 @@ type Video = {
   channelTitle: string;
   thumbnailUrl: string;
   publishDate: string;
+  snippet: {
+    title: string;
+    channelTitle: string;
+    thumbnails: {
+      high: {
+        url: string;
+      };
+    };
+    publishedAt: string;
+  };
+  id: {
+    videoId: string;
+  };
 };
 
 // Utility function to decode HTML entities
@@ -36,7 +49,7 @@ const FinancialAdvice = () => {
         const data = await response.json();
 
         // Map through the data.items and extract relevant fields
-        const formattedVideos = data.items.map((item: any): Video => ({
+        const formattedVideos: Video[] = data.items.map((item: Video) => ({
           title: decodeHTML(item.snippet.title), // Decode HTML entities here
           videoId: item.id.videoId,
           channelTitle: item.snippet.channelTitle,

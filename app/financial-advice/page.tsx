@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Spinner from '../components/Spinner';
 
 // Define TypeScript types for the video data
 type Video = {
@@ -69,7 +70,7 @@ const FinancialAdvice = () => {
     fetchVideos();
   }, [API_KEY]);
 
-  if (loading) return <div className="text-center"><div className="spinner-border animate-spin border-t-4 border-teal-500 rounded-full w-16 h-16"></div></div>;
+  if (loading) return <Spinner />;
   if (error) return <p className="text-center text-xl text-red-500">{error}</p>;
 
   return (

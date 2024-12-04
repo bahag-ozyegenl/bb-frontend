@@ -1,5 +1,12 @@
 # Stage 1: Install dependencies and build the app
 FROM node:19 AS builder
+
+# DEFINE ARGS
+ARG NEXT_PUBLIC_API_KEY
+
+# USE ARGUMENTS IN ENVIRONMENT VARIABLES
+ENV NEXT_PUBLIC_API_KEY=$NEXT_PUBLIC_API_KEY
+
 WORKDIR /app
 
 # Copy package files and install dependencies

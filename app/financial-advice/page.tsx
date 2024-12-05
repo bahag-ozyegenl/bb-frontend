@@ -169,7 +169,7 @@ const FinancialAdvice = () => {
       {/* Video Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {videos.map((video) => (
-          <div key={video.videoId} className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div key={video.videoId} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
             {/* YouTube Video Embed */}
             <div className="video-container relative pb-[56.25%]">
               <iframe
@@ -183,14 +183,17 @@ const FinancialAdvice = () => {
               ></iframe>
             </div>
 
-            <div className="p-4">
-              <h2 className="text-xl font-semibold text-gray-900">{video.title}</h2>
+            <div className="p-4 flex flex-col flex-grow">
+              {/* Title */}
+              <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">{video.title}</h2>
+              {/* Channel */}
               <p className="text-sm text-gray-500 mt-2">Channel: {video.channelTitle}</p>
+              {/* Published Date */}
               <p className="text-sm text-gray-500 mt-1">
                 Published on: {new Date(video.publishDate).toLocaleDateString()}
               </p>
 
-              <div className="mt-4 flex items-center justify-between">
+              <div className="mt-auto flex items-center justify-between">
                 <a
                   href={`https://www.youtube.com/watch?v=${video.videoId}`}
                   target="_blank"

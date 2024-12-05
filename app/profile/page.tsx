@@ -14,7 +14,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/profile", {
+        const response = await fetch("https://budget-buddy-backend-630243095989.europe-west1.run.app/api/profile", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

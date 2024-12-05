@@ -1,160 +1,193 @@
 'use client'
-
-import { useState } from 'react'
-import { Dialog, DialogPanel } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useAuth } from '../context/AuthContext'
-
-
-
+import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { usePathname } from "next/navigation";
+import Logo from './Logo';
 
 export default function Example() {
-  // const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const authContext = useAuth()
-  const { isAuthenticated, logout } = authContext || { isAuthenticated: false, logout: () => {} }
-  // const router = useRouter()
+  const { isAuthenticated, loading, logout } = authContext || { isAuthenticated: false, logout: () => {} }
+
+  const pathname = usePathname(); // Get the current path
+
+  const getLinkClasses = (path: string) => {
+    return `inline-flex items-center px-1 pt-1 text-m font-medium ${
+      pathname === path
+        ? "border-b-2 border-green-400 text-gray-900"
+        : "border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+    }`;
+  };
+
+  if (loading) {
+    return (
+      <Disclosure as="nav" className="bg-white shadow">
+        <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-center">
+            {/* Spinner */}
+            <div className="h-6 w-6 border-4 border-gray-300 border-t-green-400 rounded-full animate-spin"></div>
+          </div>
+        </div>
+      </Disclosure>
+    );
+  }
 
   return (
-    <header className="bg-white">
-      <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8">
-        <div className="flex lg:flex-1">
-          <a href="#" className="-m-1.5 p-1.5">
-            <span className="sr-only">Your Company</span>
-            <img
-              alt=""
-              src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-              className="h-8 w-auto"
-            />
-          </a>
-        </div>
-        {/* <div className="hidden lg:flex lg:gap-x-12">
-          {navigation.map((item) => (
-            <a key={item.name} href={item.href} className="text-sm/6 font-semibold text-gray-900">
-              {item.name}
-            </a>
-          ))}
-        </div> */}
-        <div className="flex flex-1 items-center justify-end gap-x-6">
+    <Disclosure as="nav" className="bg-white shadow">
+      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+        <div className="relative flex h-16 justify-between">
+          <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
+            {/* Mobile menu button */}
+            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+              <span className="absolute -inset-0.5" />
+              <span className="sr-only">Open main menu</span>
+              <Bars3Icon aria-hidden="true" className="block size-6 group-data-[open]:hidden" />
+              <XMarkIcon aria-hidden="true" className="hidden size-6 group-data-[open]:block" />
+            </DisclosureButton>
+          </div>
+          <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+              <Logo />
 
-
-          {isAuthenticated ? (<>
-            <a
+             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              {isAuthenticated ? (<>
+              {/* Current: "border-indigo-500 text-gray-900", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" */}
+              <a
+                href="/"
+                className = {getLinkClasses('/')}
+              >
+                Home
+              </a>
+              <a
                 href="/myspendings"
-                className="rounded-md bg-gray-200 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className={getLinkClasses('/myspendings')}
               >
                 My Spendings
-            </a>
-
-            <a
-              href="/profile"
-              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Profile
-            </a>
-
-            <a
-              href="/financial-advice"
-              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Financial Advice
-            </a>
-
-            <button
-              type="button"
-              onClick={() => {
-                logout();
-
-              }}
-              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Logout
-            </button>
-          </>
-          ) : <>
-            <a href="/login" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-              Log in
-            </a>
-            <a
-              href="/register"
-              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Sign up
-            </a>
-
-            <a
-              href="/financial-advice"
-              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Financial Advice
-            </a>
-          </>}
-
-        </div>
-        <div className="flex lg:hidden">
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(true)}
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
-          >
-            <span className="sr-only">Open main menu</span>
-            <Bars3Icon aria-hidden="true" className="h-6 w-6" />
-          </button>
-        </div>
-      </nav>
-      
-      <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
-        <div className="fixed inset-0 z-10" />
-        <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
-          <div className="flex items-center gap-x-6">
-            <a href="#" className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
-              <img
-                alt=""
-                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-                className="h-8 w-auto"
-              />
-            </a>
-            <a
-              href="#"
-              className="ml-auto rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Sign up
-            </a>
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(false)}
-              className="-m-2.5 rounded-md p-2.5 text-gray-700"
-            >
-              <span className="sr-only">Close menu</span>
-              <XMarkIcon aria-hidden="true" className="h-6 w-6" />
-            </button>
-          </div>
-          <div className="mt-6 flow-root">
-            <div className="-my-6 divide-y divide-gray-500/10">
-              {/* <div className="space-y-2 py-6">
-                {navigation.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                  >
-                    {item.name}
-                  </a>
-                ))}
-              </div> */}
-              <div className="py-6">
+              </a>
+              <a
+                href="/financial-advice"
+                className={getLinkClasses('/financial-advice')}
+              >
+                Financial Advice
+              </a>
+              
+              </>) : (<>
                 <a
-                  href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                href="/login"
+                className={getLinkClasses('/login')}
                 >
-                  Log in
-                </a>
-              </div>
+                Log in
+              </a>
+              <a
+                href="/register"
+                className={getLinkClasses('/register')}
+                >
+                Sign up
+              </a>
+              <a
+                href="/financial-advice"
+                className={getLinkClasses('/financial-advice')}
+                >
+                Financial Advice
+              </a>
+              </>)}
             </div>
           </div>
-        </DialogPanel>
-      </Dialog>
-    </header>
+          {isAuthenticated && (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <button
+              type="button"
+              className="relative rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              <span className="absolute -inset-1.5" />
+              <span className="sr-only">View notifications</span>
+              <BellIcon aria-hidden="true" className="size-6" />
+            </button>
+            {/* Profile dropdown */}
+            <Menu as="div" className="relative ml-3">
+              <div>
+                <MenuButton className="relative flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                  <span className="absolute -inset-1.5" />
+                  <span className="sr-only">Open user menu</span>
+                  <svg
+                    className="h-6 w-6 text-gray-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4a4 4 0 110 8 4 4 0 010-8zm0 10c-4.42 0-8 1.79-8 4v2h16v-2c0-2.21-3.58-4-8-4z"
+                    />
+                  </svg>
+                </MenuButton>
+              </div>
+              <MenuItems
+                transition
+                className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+              >
+                <MenuItem>
+                  <a
+                    href="/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:outline-none"
+                  >
+                    My Profile
+                  </a>
+                </MenuItem>
+                <MenuItem>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-sm text-red-500 data-[focus]:bg-gray-100 data-[focus]:outline-none"
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent default anchor behavior
+                      logout();
+                    }}
+                  >
+                    Sign out
+                  </a>
+                </MenuItem>
+              </MenuItems>
+            </Menu>
+          </div>
+          )}
+        </div>
+      </div>
+      <DisclosurePanel className="sm:hidden">
+        <div className="space-y-1 pb-4 pt-2">
+          {/* Current: "bg-indigo-50 border-indigo-500 text-indigo-700", Default: "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700" */}
+          <DisclosureButton
+            as="a"
+            href="#"
+            className="block border-l-4 border-indigo-500 bg-indigo-50 py-2 pl-3 pr-4 text-base font-medium text-indigo-700"
+          >
+            Dashboard
+          </DisclosureButton>
+          <DisclosureButton
+            as="a"
+            href="#"
+            className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+          >
+            Team
+          </DisclosureButton>
+          <DisclosureButton
+            as="a"
+            href="#"
+            className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+          >
+            Projects
+          </DisclosureButton>
+          <DisclosureButton
+            as="a"
+            href="#"
+            className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+          >
+            Calendar
+          </DisclosureButton>
+        </div>
+      </DisclosurePanel>
+    </Disclosure>
   )
 }

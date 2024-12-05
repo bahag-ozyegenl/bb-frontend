@@ -12,6 +12,8 @@ import { CustomError } from './types/CustomError';
 import { ChartData } from './types/ChartData';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Spinner from './components/Spinner';
+
 
 export default function Home() {
   const authContext = useAuth();
@@ -37,41 +39,11 @@ export default function Home() {
   }, [loading, isAuthenticated, selectedCategory, dateRange]);
 
   // data of pie chart
-  // const fetchSpendingSummary = async () => {
-  //   const token = localStorage.getItem('token');
-  //   try {
-  //     const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-sum', {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error('Failed to fetch spending summary');
-  //     }
-
-  //     const data = await response.json();
-  //     setChartData(
-  //       data.spendings.map((item: { category: string; sum: string }) => ({
-  //         id: item.category,
-  //         value: Number(item.sum),
-  //         label: item.category,
-  //       }))
-  //     );
-  //   } catch (err) {
-  //     const error = err as CustomError;
-  //     setError(error.message || 'An error occurred while fetching the summary');
-  //   } finally {
-  //     setLoadingChart(false);
-  //   }
-  // };
-
-  // data of pie chart
 const fetchSpendingSummary = async () => {
   const token = localStorage.getItem('token');
 
   // Dynamically construct the URL based on the presence of startDate and endDate
-  let url = 'https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-sum';
+  let url = 'http://localhost:3000/api/spending-sum';
 
   if (startDate && endDate) {
     url += `?startDate=${startDate}&endDate=${endDate}`;
@@ -109,7 +81,7 @@ const fetchSpendingSummary = async () => {
   const fetchSpendingsByCategory = async (category: string) => {
     const token = localStorage.getItem('token');
 
-    let url = `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-by-category?category=${category}`;
+    let url = `http://localhost:3000/api/spending-by-category?category=${category}`;
 
   if (startDate && endDate) {
     url += `&startDate=${startDate}&endDate=${endDate}`;
@@ -154,14 +126,15 @@ const fetchSpendingSummary = async () => {
     setDateRange(dates);
   };
   
-  if (loading || loadingChart) return <p>Loading...</p>;
+  if (loading || loadingChart) return <Spinner />;
+  
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
     <div className="container mx-auto p-4">
       {!loading && isAuthenticated && user && (
         <>
-          <h1 className="text-center text-2xl font-bold text-blue-600 mt-4 mb-6">
+          <h1 className="text-center text-2xl font-bold text-green-600 mt-4 mb-6">
             Hey {user.username}, Welcome to BudgetBuddy!
           </h1>
 

@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {Spending} from "../types/Spending";
 import {CustomError} from "../types/CustomError";
+import Spinner from '../components/Spinner';
 
 const MySpendings = () => {
   const [spendings, setSpendings] = useState<Spending[]>([]);
@@ -43,7 +44,7 @@ const MySpendings = () => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spendings', {
+      const response = await fetch('http://localhost:3000/api/spendings', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -69,7 +70,7 @@ const MySpendings = () => {
     const token = localStorage.getItem('token');
     try {
       const response = await fetch(
-        `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-date?startDate=${startDate}&endDate=${endDate}`,
+        `http://localhost:3000/api/spending-date?startDate=${startDate}&endDate=${endDate}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -96,7 +97,7 @@ const MySpendings = () => {
     if (!confirm('Are you sure you want to delete this spending?')) return;
 
     try {
-      const response = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending/${id}`, {
+      const response = await fetch(`http://localhost:3000/api/spending/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -127,7 +128,7 @@ const MySpendings = () => {
 
     const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending`, {
+        const res = await fetch(`http://localhost:3000/api/spending`, {
             method: 'POST',
             headers: {
             'Authorization': `Bearer ${token}`,
@@ -178,7 +179,7 @@ const MySpendings = () => {
 
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending/${editingId}`, {
+      const res = await fetch(`http://localhost:3000/api/spending/${editingId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -225,7 +226,7 @@ const MySpendings = () => {
   
     try {
       // Step 1: Fetch user_id for the given email
-      const userRes = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/users/getIdByEmail`, {
+      const userRes = await fetch(`http://localhost:3000/api/users/getIdByEmail`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -257,7 +258,7 @@ const MySpendings = () => {
   
       // Step 3: Update the spending with split_user_id and updated amount
       const res = await fetch(
-        `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending/${splitSpendingId}`,
+        `http://localhost:3000/api/spending/${splitSpendingId}`,
         {
           method: "PUT",
           headers: {
@@ -282,7 +283,7 @@ const MySpendings = () => {
         )
       );
       
-      const addSplitRes = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-split`, {
+      const addSplitRes = await fetch(`http://localhost:3000/api/spending-split`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -325,11 +326,11 @@ const MySpendings = () => {
     setSplitEmail("");
   };
   
-  if (loading) return <p>Loading...</p>;
+  if (loading) return  <Spinner />;;
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 mt-6">
        <>
        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
@@ -350,14 +351,35 @@ const MySpendings = () => {
               onClick={() => setIsAddModalOpen(true)}
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
-              Add Spending
+              Add Expense
             </button>
           </div>
         </div>
 
-          {isAddModalOpen && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white p-6 rounded shadow-lg w-96">
+        {isAddModalOpen && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+             <div className="bg-white p-6 rounded shadow-lg w-96 relative">
+              {/* Close Button */}
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="absolute top-5 right-5 text-red-500 hover:text-red-700"
+                aria-label="Close modal"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
                 <h2 className="text-lg font-bold text-gray-700 mb-4">Add Spending</h2>
                 <form className="space-y-4">
                   <div>
@@ -415,21 +437,15 @@ const MySpendings = () => {
                 </form>
                 <div className="flex justify-end space-x-4 mt-6">
                   <button
-                    onClick={() => setIsAddModalOpen(false)}
-                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSaveAddSpending}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                  >
-                    Save
-                  </button>
+                      onClick={handleSaveAddSpending}
+                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    >
+                      Save
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
         </>
 
         <table className="table-auto w-full">
@@ -475,20 +491,10 @@ const MySpendings = () => {
                         onClick={() => openSplitModal(spending.id)}
                         className="text-green-500 hover:text-green-700"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M4 6h16M4 12h16M4 18h16"
-                          />
-                        </svg>
+                     <div className="h-6 w-6 flex items-center justify-center rounded-full border-2 border-yellow-500 text-yellow-500 font-bold">
+                        S
+                      </div>
+
                       </button>
 
                     <button
@@ -544,7 +550,28 @@ const MySpendings = () => {
 
       {isModalOpen && editedSpending && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow-lg w-96">
+          <div className="bg-white p-6 rounded shadow-lg w-96 relative">
+          {/* Close Button */}
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="absolute top-5 right-5 text-red-500 hover:text-red-700"
+            aria-label="Close modal"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
             <h2 className="text-lg font-bold text-gray-700 mb-4">Update Spending</h2>
             <form className="space-y-4">
               <div>
@@ -602,14 +629,8 @@ const MySpendings = () => {
             </form>
             <div className="flex justify-end space-x-4 mt-6">
               <button
-                onClick={() => setIsModalOpen(false)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
                 onClick={handleSave}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
               >
                 Save
               </button>
@@ -621,7 +642,28 @@ const MySpendings = () => {
        {/* Split Modal */}
        {splitModalOpen && splitSpendingId && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+         <div className="bg-white p-6 rounded shadow-lg w-96 relative">
+          {/* Close Button */}
+          <button
+            onClick={() => closeSplitModal()}
+            className="absolute top-5 right-5 text-red-500 hover:text-red-700"
+            aria-label="Close modal"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
             <h2 className="text-lg font-bold mb-4">Split Your Spending</h2>
             <p className="mb-4">Enter the email address of the person to split with:</p>
             <input
@@ -632,15 +674,10 @@ const MySpendings = () => {
               className="border border-gray-300 p-2 w-full mb-4 rounded"
             />
             <div className="flex justify-end">
-              <button
-                onClick={() => closeSplitModal()}
-                className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded mr-2"
-              >
-                Cancel
-              </button>
+             
               <button
                 onClick={handleSplitSave}
-                className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
               >
                 Split
               </button>

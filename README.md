@@ -5,12 +5,14 @@ The frontend of **BudgetBuddy**, a powerful application to track and manage your
 ## Features
 
 - **Store Expenses**: Securely save your expense data in the database.
+- **Manage Your Spendings**: Easily add, update, or delete your spending records.
 - **Visual Insights**: View your spending breakdown in a pie chart.
   - Click on a pie slice to see detailed information about spending in a specific category.
 - **Email Summaries**: Receive detailed summaries of your expenses via email.
 - **Export Data**: Download your spending data in CSV format.
 - **Custom Date Filters**: Select specific date ranges to analyze your expenses.
 - **Collaborative Splitting**: Split expenses with other users to track shared spending.
+- **Access Financial Advice**: Watch helpful financial advice videos to improve your budgeting skills.
 
 ---
 ## Technologies Used

@@ -43,7 +43,7 @@ const fetchSpendingSummary = async () => {
   const token = localStorage.getItem('token');
 
   // Dynamically construct the URL based on the presence of startDate and endDate
-  let url = 'http://localhost:3000/api/spending-sum';
+  let url = 'https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-sum';
 
   if (startDate && endDate) {
     url += `?startDate=${startDate}&endDate=${endDate}`;
@@ -81,7 +81,7 @@ const fetchSpendingSummary = async () => {
   const fetchSpendingsByCategory = async (category: string) => {
     const token = localStorage.getItem('token');
 
-    let url = `http://localhost:3000/api/spending-by-category?category=${category}`;
+    let url = `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-by-category?category=${category}`;
 
   if (startDate && endDate) {
     url += `&startDate=${startDate}&endDate=${endDate}`;

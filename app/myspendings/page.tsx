@@ -44,7 +44,7 @@ const MySpendings = () => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch('http://localhost:3000/api/spendings', {
+      const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spendings', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -70,7 +70,7 @@ const MySpendings = () => {
     const token = localStorage.getItem('token');
     try {
       const response = await fetch(
-        `http://localhost:3000/api/spending-date?startDate=${startDate}&endDate=${endDate}`,
+        `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-date?startDate=${startDate}&endDate=${endDate}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ const MySpendings = () => {
     if (!confirm('Are you sure you want to delete this spending?')) return;
 
     try {
-      const response = await fetch(`http://localhost:3000/api/spending/${id}`, {
+      const response = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -128,7 +128,7 @@ const MySpendings = () => {
 
     const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`http://localhost:3000/api/spending`, {
+        const res = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending`, {
             method: 'POST',
             headers: {
             'Authorization': `Bearer ${token}`,
@@ -179,7 +179,7 @@ const MySpendings = () => {
 
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:3000/api/spending/${editingId}`, {
+      const res = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending/${editingId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -226,7 +226,7 @@ const MySpendings = () => {
   
     try {
       // Step 1: Fetch user_id for the given email
-      const userRes = await fetch(`http://localhost:3000/api/users/getIdByEmail`, {
+      const userRes = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/users/getIdByEmail`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -258,7 +258,7 @@ const MySpendings = () => {
   
       // Step 3: Update the spending with split_user_id and updated amount
       const res = await fetch(
-        `http://localhost:3000/api/spending/${splitSpendingId}`,
+        `https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending/${splitSpendingId}`,
         {
           method: "PUT",
           headers: {
@@ -283,7 +283,7 @@ const MySpendings = () => {
         )
       );
       
-      const addSplitRes = await fetch(`http://localhost:3000/api/spending-split`, {
+      const addSplitRes = await fetch(`https://budget-buddy-backend-630243095989.europe-west1.run.app/api/spending-split`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

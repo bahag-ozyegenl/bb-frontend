@@ -205,7 +205,12 @@ const MySpendings = () => {
         const newSpending = data.spending; // Extract the spending object
 
         setSpendings((prevSpendings) => [...prevSpendings, newSpending]); // Update spendings with the new item
-      
+        setSpending({ //reset the form
+          name: '',
+          amount: '',
+          date: '',
+          category: '',
+        });
       } catch (err) {
         const error = err as CustomError;
         setError(error.message);
@@ -531,9 +536,12 @@ const MySpendings = () => {
                     >
                       <option value="" disabled>Select category</option>
                       <option value="Food">Food</option>
-                      <option value="Transport">Transport</option>
+                      <option value="Transportation">Transportation</option>
                       <option value="Entertainment">Entertainment</option>
-                      <option value="Utilities">Utilities</option>
+                      <option value="Housing">Housing</option>
+                      <option value="Health">Health</option>
+                      <option value="Shopping">Shopping</option>
+                      <option value="Bills">Bills</option>
                       <option value="Other">Other</option>
                     </select>
                   </div>
@@ -577,12 +585,18 @@ const MySpendings = () => {
                     className={`inline-block px-3 py-1 text-sm font-medium rounded ${
                       spending.category === "Food"
                         ? "bg-green-100 text-green-800"
-                        : spending.category === "transport"
+                        : spending.category === "Transportation"
                         ? "bg-blue-100 text-blue-800"
                         : spending.category === "Entertainment"
                         ? "bg-purple-100 text-purple-800"
-                        : spending.category === "Utilities"
+                        : spending.category === "Bills"
                         ? "bg-yellow-100 text-yellow-800"
+                        : spending.category === "Shopping"
+                        ? "bg-pink-100 text-pink-800"
+                        : spending.category === "Health"
+                        ? "bg-orange-100 text-orange-800"
+                         : spending.category === "Housing"
+                        ? "bg-red-100 text-red-800"
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
@@ -722,11 +736,14 @@ const MySpendings = () => {
                   required
                 >
                   <option value="" disabled>Select category</option>
-                  <option value="Food">Food</option>
-                  <option value="Transport">Transport</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Utilities">Utilities</option>
-                  <option value="Other">Other</option>
+                      <option value="Food">Food</option>
+                      <option value="Transportation">Transportation</option>
+                      <option value="Entertainment">Entertainment</option>
+                      <option value="Housing">Housing</option>
+                      <option value="Health&Fitness">Health</option>
+                      <option value="Shopping">Shopping</option>
+                      <option value="Bills">Bills</option>
+                      <option value="Other">Other</option>
                 </select>
               </div>
             </form>

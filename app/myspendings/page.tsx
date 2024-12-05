@@ -90,6 +90,69 @@ const MySpendings = () => {
     }
   }
 
+  const sendEmail = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/send-mail', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
+      const result = await response.text(); // Retrieve the text response from the backend
+      if (result === 'Email sent successfully') {
+        alert('Email sent successfully');
+      }
+     
+    } catch (err) {
+      const error = err as CustomError;
+      setError(error.message);
+    } 
+  };
+
+  const downloadFile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+  
+      // Fetch the CSV file from the backend
+      const response = await fetch('https://budget-buddy-backend-630243095989.europe-west1.run.app/api/download-file', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to download file');
+      }
+  
+      // Get the file as a Blob
+      const blob = await response.blob();
+  
+      // Create a URL for the Blob
+      const url = window.URL.createObjectURL(blob);
+  
+      // Create a temporary anchor element to trigger the download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'spendings.csv'; // Set the default file name
+      document.body.appendChild(a);
+      a.click(); // Trigger the download
+      document.body.removeChild(a); // Remove the element after the download
+      window.URL.revokeObjectURL(url); // Clean up the URL
+  
+    } catch (err) {
+      console.error('Error downloading file:', err);
+      alert('An error occurred while downloading the file.');
+    }
+  };
+  
+
  
 
   const handleDelete = async (id: number) => {
@@ -346,13 +409,53 @@ const MySpendings = () => {
               placeholderText="Select date range"
             />
           </div>
-          <div>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            >
-              Add Expense
-            </button>
+          <div className="flex items-center space-x-4">
+             {/* Download Icon */}
+              <svg
+                className="w-6 h-6 text-gray-400 dark:text-green-500 cursor-pointer hover:text-green-600 hover:scale-110 transition-transform duration-200"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+                onClick={() => downloadFile()}
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"
+                />
+              </svg>
+
+
+
+
+              {/* Email Icon */}
+              <svg
+                className="w-6 h-6 text-gray-400 dark:text-green-500 cursor-pointer hover:text-green-600 hover:scale-110 transition-transform duration-200"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                onClick={() => sendEmail()}
+              >
+                <path d="M2.038 5.61A2.01 2.01 0 0 0 2 6v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6c0-.12-.01-.238-.03-.352l-.866.65-7.89 6.032a2 2 0 0 1-2.429 0L2.884 6.288l-.846-.677Z" />
+                <path d="M20.677 4.117A1.996 1.996 0 0 0 20 4H4c-.225 0-.44.037-.642.105l.758.607L12 10.742 19.9 4.7l.777-.583Z" />
+              </svg>
+
+
+              {/* Add Expense Button */}
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                Add Expense
+              </button>
           </div>
         </div>
 

@@ -137,6 +137,18 @@ const fetchSpendingSummary = async () => {
           <h1 className="text-center text-2xl font-bold text-green-600 mt-4 mb-6">
             Hey {user.username}, Welcome to BudgetBuddy!
           </h1>
+          {startDate && endDate ? (
+            <h3 className="text-xl font-bold text-gray-700 mb-4">
+            <p>
+            Your spendings between:
+            </p>
+            </h3>
+          ) : (
+            <h3 className="text-xl font-bold text-gray-700 mb-4">
+            <p>View your spendings!</p>
+            </h3>
+          
+          )}
 
           <div className="flex items-center">
             <DatePicker
@@ -151,6 +163,9 @@ const fetchSpendingSummary = async () => {
               placeholderText="Select date range"
             />
           </div>
+          <>
+  
+</>
 
           <Stack
             direction={{ xs: 'column', md: 'row' }}

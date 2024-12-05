@@ -4,6 +4,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuIt
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { usePathname } from "next/navigation";
 import Logo from './Logo';
+import Link from 'next/link';
 
 export default function Example() {
   const authContext = useAuth()
@@ -51,44 +52,29 @@ export default function Example() {
              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {isAuthenticated ? (<>
               {/* Current: "border-indigo-500 text-gray-900", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" */}
-              <a
-                href="/"
-                className = {getLinkClasses('/')}
-              >
+              <Link href="/" className = {getLinkClasses('/')}>
                 Home
-              </a>
-              <a
-                href="/myspendings"
-                className={getLinkClasses('/myspendings')}
-              >
+              </Link>
+              <Link href="/myspendings" className = {getLinkClasses('/myspendings')}>
                 My Spendings
-              </a>
-              <a
-                href="/financial-advice"
-                className={getLinkClasses('/financial-advice')}
-              >
+              </Link>
+              <Link href="/financial-advice" className = {getLinkClasses('/financial-advice')}>
                 Financial Advice
-              </a>
+              </Link>
               
               </>) : (<>
-                <a
-                href="/login"
-                className={getLinkClasses('/login')}
-                >
+                <Link href="/login" className = {getLinkClasses('/login')}>
                 Log in
-              </a>
-              <a
-                href="/register"
-                className={getLinkClasses('/register')}
-                >
+              </Link>
+              <Link href="/register" className = {getLinkClasses('/register')}>
                 Sign up
-              </a>
-              <a
+              </Link>
+              <Link 
                 href="/financial-advice"
                 className={getLinkClasses('/financial-advice')}
                 >
                 Financial Advice
-              </a>
+              </Link>
               </>)}
             </div>
           </div>
@@ -130,15 +116,13 @@ export default function Example() {
                 className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
               >
                 <MenuItem>
-                  <a
-                    href="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:outline-none"
-                  >
+                  <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:outline-none">
+                   
                     My Profile
-                  </a>
+                  </Link>
                 </MenuItem>
                 <MenuItem>
-                  <a
+                  <Link
                     href="#"
                     className="block px-4 py-2 text-sm text-red-500 data-[focus]:bg-gray-100 data-[focus]:outline-none"
                     onClick={(e) => {
@@ -147,7 +131,7 @@ export default function Example() {
                     }}
                   >
                     Sign out
-                  </a>
+                  </Link>
                 </MenuItem>
               </MenuItems>
             </Menu>

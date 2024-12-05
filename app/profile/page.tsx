@@ -1,62 +1,6 @@
-"use client";
+"use client"
 
-// import { useEffect, useState } from "react";
-// import Spinner from "../components/Spinner";
-// import { User } from "../types/User";
-
-// const Profile = () => {
-//   const [profile, setProfile] = useState<User | null>(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
-
-//   useEffect(() => {
-//     const fetchProfile = async () => {
-//       try {
-//         const response = await fetch('http://localhost:3000/api/profile', {
-//           method: "GET",
-//           headers: {
-//             "Content-Type": "application/json",
-//             Authorization: `Bearer ${localStorage.getItem("token")}`, // Use your token handling logic
-//           },
-//         });
-
-//         if (!response.ok) {
-//           throw new Error((await response.json()).message || "Failed to fetch profile data");
-//         }
-
-//         const data = await response.json();
-//         setProfile(data.user);
-//       } catch (err: any) {
-//         console.error(err);
-//         setError(err.message || "An error occurred");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchProfile();
-//   }, []);
-
-//   if (loading) return <Spinner />;
-//   if (error) return <p className="text-center text-red-500">{error}</p>;
-
-//   return (
-//     <div className="max-w-4xl mx-auto px-4 py-8">
-
-//       <div className="bg-white shadow-md rounded-lg p-6">
-//         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-//           {profile?.username}
-//         </h2>
-//         <p className="text-gray-600">
-//           <strong>Email:</strong> {profile?.email}
-//         </p>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Profile;
-
+import {CustomError} from "../types/CustomError";
 import { User } from "../types/User";
 import { useEffect, useState } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
@@ -84,9 +28,9 @@ const Profile = () => {
 
         const data = await response.json();
         setProfile(data.user);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || "An error occurred");
+      } catch (err) {
+            const error = err as CustomError;
+            setError(error.message);
       } finally {
         setLoading(false);
       }

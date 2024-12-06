@@ -2,7 +2,7 @@ import React from 'react';
 
 const Logo = () => {
   return (
-    <div className="flex items-center ml-[-16px] space-x-2">
+    <div className="flex items-center ml-[-39px] space-x-2">
       <p className="text-4xl font-bold text-green-400 tracking-tight">
         Budget<span className="text-green-600">Buddy</span>
       </p>

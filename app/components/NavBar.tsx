@@ -47,10 +47,13 @@ export default function Example() {
             </DisclosureButton>
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-              <Logo />
+              
 
              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {isAuthenticated ? (<>
+                <Link href="/" className="mt-3">
+                <Logo />
+              </Link>
               {/* Current: "border-indigo-500 text-gray-900", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" */}
               <Link href="/" className = {getLinkClasses('/')}>
                 Home
@@ -63,11 +66,8 @@ export default function Example() {
               </Link>
               
               </>) : (<>
-                <Link href="/login" className = {getLinkClasses('/login')}>
-                Log in
-              </Link>
-              <Link href="/register" className = {getLinkClasses('/register')}>
-                Sign up
+                <Link href="/financial-advice" className="mt-3">
+                <Logo />
               </Link>
               <Link 
                 href="/financial-advice"
@@ -75,6 +75,14 @@ export default function Example() {
                 >
                 Financial Advice
               </Link>
+                <Link href="/login" className = {getLinkClasses('/login')}>
+                Log in
+              </Link>
+              <Link href="/register" className = {getLinkClasses('/register')}>
+                Sign up
+              </Link>
+             
+              
               </>)}
             </div>
           </div>

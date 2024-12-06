@@ -16,7 +16,6 @@ const Login = () => {
         e.preventDefault()
         try{
             const response = await login(email, password)
-            console.log("response", response)
             if(response.message === 'User successfully Logged in!'){
                 router.push('/')
             }
@@ -25,7 +24,7 @@ const Login = () => {
             }
         }
         catch(err){
-            console.log(err)
+            alert(err)
         }
     }
 

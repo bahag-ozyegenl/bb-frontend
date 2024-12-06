@@ -57,7 +57,7 @@ const MySpendings = () => {
 
       const data = await response.json();
       setSpendings(data.spendings);
-      console.log("data.spendings: ", data.spendings)
+      // console.log("data.spendings: ", data.spendings)
     } catch (err) {
       const error = err as CustomError;
       setError(error.message);
@@ -186,7 +186,7 @@ const MySpendings = () => {
   };
 
   const handleSaveAddSpending = async () => {
-    console.log("Spending saved: ", spending);
+    // console.log("Spending saved: ", spending);
     setIsAddModalOpen(false);
 
     const token = localStorage.getItem('token');
@@ -227,7 +227,7 @@ const MySpendings = () => {
       spendingToEdit.date = new Date(spendingToEdit.date).toISOString().split('T')[0]; // Format the date
     }
     if (spendingToEdit) {
-      console.log("spendingToEdit.date ", spendingToEdit.date)
+      // console.log("spendingToEdit.date ", spendingToEdit.date)
       setEditedSpending({ ...spendingToEdit}); // Ensure the date is formatted correctly
       setIsModalOpen(true);
     }
@@ -236,9 +236,9 @@ const MySpendings = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    console.log("name: ", name, "value: ", value)
+    // console.log("name: ", name, "value: ", value)
     setEditedSpending((prev) => (prev ? { ...prev, [name]: value } : null));
-    console.log("editedSpending: ", editedSpending)
+    // console.log("editedSpending: ", editedSpending)
   };
 
   // edit spending
@@ -257,7 +257,7 @@ const MySpendings = () => {
       });
 
       if (!res.ok) throw new Error('Failed to update spending');
-      console.log("res ",res)
+      // console.log("res ",res)
 
       // Update the state with the saved spending
       setSpendings((prevSpendings) =>
@@ -265,7 +265,7 @@ const MySpendings = () => {
           spending.id === editingId ? { ...editedSpending } : spending
         )
       );
-      console.log("editedSpending: ", editedSpending)
+      // console.log("editedSpending: ", editedSpending)
       setIsModalOpen(false);
     } catch (err) {
       const error = err as CustomError;
@@ -283,12 +283,12 @@ const MySpendings = () => {
     );
   
     if (!spendingToSplit) {
-      setError("Spending not found.");
+      alert("Spending not found.");
       return;
     }
 
     if (!splitEmail || !/\S+@\S+\.\S+/.test(splitEmail)) {
-      setError("Please provide a valid email address.");
+      alert("Please provide a valid email address.");
       return;
     }
   
@@ -305,7 +305,9 @@ const MySpendings = () => {
     
       if (!userRes.ok) {
         if (userRes.status === 404) {
-          throw new Error("User not found for the provided email.");
+          // throw new Error("User not found for the provided email.");
+          alert("User not found for the provided email.");
+          return;
         } else if (userRes.status === 400) {
           throw new Error("Invalid email address.");
         } else {
@@ -314,12 +316,6 @@ const MySpendings = () => {
       }
     
       const { user_id } = await userRes.json(); // Assuming backend returns { user_id }
-    
-      if (!user_id) {
-        setError("User not found for the provided email.");
-        return;
-      }
-      console.log("Fetched user_id:", user_id);
   
       // Step 2: Calculate the new amount (split in half)
       const updatedAmount = spendingToSplit.amount / 2;
@@ -505,14 +501,30 @@ const MySpendings = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Amount</label>
                     <input
-                      type="number"
+                      type="text" // Use text instead of number to fully control input validation
                       name="amount"
                       value={spending.amount}
-                      onChange={handleInputChangeAddSpending}
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        // Regular expression to allow only up to 10 digits before the decimal and 2 digits after
+                        const regex = /^\d{0,10}(\.\d{0,2})?$/;
+
+                        if (!regex.test(value)) {
+                          alert(
+                            "Invalid input! Please enter a number with up to 10 digits before the decimal and up to 2 digits after."
+                          );
+                          return;
+                        }
+
+                        handleInputChangeAddSpending(e); // Call your handler if the input is valid
+                      }}
                       className="block w-full border rounded px-3 py-2"
                       placeholder="Spending amount"
                       required
                     />
+
+
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Date</label>

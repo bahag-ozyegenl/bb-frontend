@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchProfile = async () => {
     const token = localStorage.getItem('token')
-    console.log(token)
+    
     if (!token) {
         setLoading(false)
       return
@@ -42,17 +42,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      console.log(res)
+      
       if (res.ok) {
         const data = await res.json()
-        console.log("data", data)
+        
         setUser(data.user)
         setIsAuthenticated(true)
       }
     }
     catch (err) {
       setIsAuthenticated(false)
-      console.log(`Error fetching profile ${err}`)
+      alert(`Error fetching profile ${err}`)
     }
     finally{
       setLoading(false)
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       body: JSON.stringify({ username, email, password }),
     });
     const data = await res.json();
-    console.log("data", data)
+
     return data
     // if (data.token) {
     //   localStorage.setItem('token', data.token);
@@ -83,7 +83,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
-    console.log("data", data)
     if (data.token) {
       localStorage.setItem('token', data.token);
       setUser(data.user);

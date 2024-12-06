@@ -110,11 +110,7 @@ const fetchSpendingSummary = async () => {
 
   const handlePieClick = (event: React.MouseEvent<SVGPathElement, MouseEvent>, itemIdentifier: PieItemIdentifier) => {
     // Use dataIndex to get the corresponding chartData entry
-    console.log('item', itemIdentifier);
-    console.log('chartData', chartData);
     const clickedCategory = chartData[itemIdentifier.dataIndex]?.id; 
-    console.log('clickedCategory', clickedCategory);
-  
     if (clickedCategory) {
       setSelectedCategory(clickedCategory); // Set the clicked category
     } else {

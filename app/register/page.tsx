@@ -17,17 +17,17 @@ const Register = () => {
         e.preventDefault()
         try{
             const response = await register(username, email, password)
-            console.log('response', response)
+           
             if(response.message === 'User was created successfully!'){
                 alert(response.message)
                 router.push('/login')
             }
-            // else if(response.message === 'User already exists'){
-            //     alert(response.message)
-            // }
+            else if(response.message === 'User already exists'){
+                alert(response.message)
+            }
         }
         catch(err){
-            console.log(err)
+            alert(err)
         }
     }
 
